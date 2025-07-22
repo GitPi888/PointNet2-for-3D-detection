@@ -15,7 +15,7 @@ import open3d as o3d
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
-from ..preprocess import kitti_utils as utils
+from preprocess import kitti_utils as utils
 
 import argparse
 
