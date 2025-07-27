@@ -222,6 +222,38 @@ def show_image_with_boxes(img, objects, calib, show3d=True, depth=None):
             (0, 255, 255),
             2,
         )
+        if obj.type =="Van":
+            cv2.rectangle(
+            img1,
+            (int(obj.xmin), int(obj.ymin)),
+            (int(obj.xmax), int(obj.ymax)),
+            (0, 255, 1),
+            2,
+        )
+        if obj.type == "Truck":
+            cv2.rectangle(
+            img1,
+            (int(obj.xmin), int(obj.ymin)),
+            (int(obj.xmax), int(obj.ymax)),
+            (255, 0, 255),
+            2,
+        )
+        if obj.type == "Tram":
+            cv2.rectangle(
+            img1,
+            (int(obj.xmin), int(obj.ymin)),
+            (int(obj.xmax), int(obj.ymax)),
+            (0, 1, 255),
+            2,
+        )
+        if obj.type == "Misc":
+            cv2.rectangle(
+            img1,
+            (int(obj.xmin), int(obj.ymin)),
+            (int(obj.xmax), int(obj.ymax)),
+            (255, 0, 1),
+            2,
+        )
         box3d_pts_2d, _ = utils.compute_box_3d(obj, calib.P)
         if box3d_pts_2d is None:
             print("something wrong in the 3D box.")
@@ -232,7 +264,38 @@ def show_image_with_boxes(img, objects, calib, show3d=True, depth=None):
             img2 = utils.draw_projected_box3d(img2, box3d_pts_2d, color=(255, 255, 0))
         elif obj.type == "Cyclist":
             img2 = utils.draw_projected_box3d(img2, box3d_pts_2d, color=(0, 255, 255))
+        elif obj.type =="Van":
+            img2 = utils.draw_projected_box3d(img2, box3d_pts_2d, color=(0, 0, 255))
+        elif obj.type == "Truck":
+            img2 = utils.draw_projected_box3d(img2, box3d_pts_2d, color=(255, 0, 255))
+        elif obj.type == "Tram":
+            img2 = utils.draw_projected_box3d(img2, box3d_pts_2d, color=(0, 1, 255))
+        elif obj.type == "Misc":
+            img2 = utils.draw_projected_box3d(img2, box3d_pts_2d, color=(255, 0, 1))
     return img1, img2
+
+def show_image_with_boxes_3d_only(img, objects, calib):
+    """ Hiển thị ảnh với 3D bounding boxes (sử dụng Object3dFake) """
+    img_3d = np.copy(img)
+    color_map = {
+        "Car": (0, 255, 0),
+        "Pedestrian": (255, 255, 0),
+        "Cyclist": (0, 255, 255),
+        "Van": (0, 0, 255),
+        "Truck": (255, 0, 255),
+        "Tram": (0, 1, 255),
+        "Misc": (255, 0, 1),
+    }
+    box3d_pts_2d = utils.compute_box_3d_modified(objects,calib.P)
+    print(box3d_pts_2d)
+    if box3d_pts_2d is not None:
+        color = color_map.get(objects['class'], (255, 255, 255))  # default: white
+        img_3d = utils.draw_projected_box3d(img_3d, box3d_pts_2d, color=color)
+    else:
+        print(f"Lỗi tính box3D cho object type: {objects['class']}")
+
+    return img_3d
+
 
 
 def show_image_with_boxes_3type(img, objects, calib, objects2d, name, objects_pred):

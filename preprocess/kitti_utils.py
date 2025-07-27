@@ -614,6 +614,38 @@ def compute_box_3d(obj, P):
     return corners_2d, np.transpose(corners_3d)
 
 
+def compute_box_3d_modified(box_cam,P):
+    R = roty(box_cam['rotation'])
+    # 3d bounding box dimensions
+    l = box_cam['size'][0]
+    w = box_cam['size'][1]
+    h = box_cam['size'][2]
+
+    # 3d bounding box corners
+    x_corners = [l / 2, l / 2, -l / 2, -l / 2, l / 2, l / 2, -l / 2, -l / 2]
+    y_corners = [0, 0, 0, 0, -h, -h, -h, -h]
+    z_corners = [w / 2, -w / 2, -w / 2, w / 2, w / 2, -w / 2, -w / 2, w / 2]
+
+    # rotate and translate 3d bounding box
+    corners_3d = np.dot(R, np.vstack([x_corners, y_corners, z_corners]))
+    # print corners_3d.shape
+    corners_3d[0, :] = corners_3d[0, :] + box_cam['center'][0]
+    corners_3d[1, :] = corners_3d[1, :] + box_cam['center'][1]
+    corners_3d[2, :] = corners_3d[2, :] + box_cam['center'][2]
+    # print 'cornsers_3d: ', corners_3d
+    # only draw 3d bounding box for objs in front of the camera
+    if np.any(corners_3d[2, :] < 0.1):
+        corners_2d = None
+        return corners_2d, np.transpose(corners_3d)
+
+    # project the 3d bounding box into the image plane
+    corners_2d = project_to_image(np.transpose(corners_3d), P)
+    # print 'corners_2d: ', corners_2d
+    return corners_2d, np.transpose(corners_3d)
+    
+   
+
+
 def compute_orientation_3d(obj, P):
     """ Takes an object and a projection matrix (P) and projects the 3d
         object orientation vector into the image plane.
